@@ -8,7 +8,7 @@ Aplicaciones como Strava han contribuido significativamente a este fenómeno, co
 
 ## Acerca de la Aplicación
 
-Esta aplicación utiliza el modelo XGBoost para clasificar el rendimiento de ciclistas en cuatro categorías: **Casual**, **Amateur**, **Experimentado** y **Profesional**. Basado en datos como edad, género, actividades y diversas métricas de rendimiento, el modelo predice el nivel de cada ciclista.
+Esta aplicación utiliza el modelo XGBoost para clasificar el rendimiento de ciclistas en cuatro categorías: **Casual**, **Amateur**, **Experimentado** y **Élite**. Basado en datos como edad, género, actividades y diversas métricas de rendimiento, el modelo predice el nivel de cada ciclista.
 
 ## Características
 
