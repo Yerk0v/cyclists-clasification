@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
-from joblib import load
-from sklearn.preprocessing import StandardScaler
-import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
+from model_prediction import predict_capacities
+from input_data import user_input
 
 # Configuración de la página
 st.set_page_config(page_title="Predicción de Ciclistas", page_icon="🚴", layout="centered")
@@ -20,7 +21,7 @@ with st.sidebar:
         - Separado por comas
         - Delimitado por comillas dobles
         - La primera fila debe ser el encabezado
-        - Características necesarias: 'age', 'gender', 'activities', 'bike', '20s_peak', '60s_peak', '180s_peak', '420s_peak', '720s_peak', 'weightkg'
+        - Características necesarias: 'age', 'gender', 'activities', 'weightkg', 'frecuencia_semanal', 'workout_time', 'total_distance', 'elevation_gain', 'average_speed', 'average_power', 'average_hr'
         """)
     st.divider()
     st.caption("<p style='text-align:center'>Desarrollado por Yerko Muñoz</p>", unsafe_allow_html=True)
@@ -28,9 +29,14 @@ with st.sidebar:
 # Estado del botón
 if 'clicked' not in st.session_state:
     st.session_state.clicked = {1: False}
+if 'show_data' not in st.session_state:
+    st.session_state.show_data = False
 
 def clicked(button):
     st.session_state.clicked[button] = True
+
+def toggle_data_view():
+    st.session_state.show_data = not st.session_state.show_data
 
 st.button("Comencemos", on_click=clicked, args=[1])
 
@@ -42,61 +48,67 @@ if st.session_state.clicked[1]:
         # Cargar datos
         df = pd.read_csv(uploaded_file)
 
-        st.header("Muestra de datos subidos")
-        st.write(df.head())
+        # Mostrar datos subidos opcionalmente
+        if st.button("Mostrar/Ocultar datos subidos"):
+            toggle_data_view()
 
-        # Categorizar la variable objetivo
-        def categorize_wpk(wpk):
-            if wpk < 4.0:
-                return 0
-            elif 4.0 <= wpk <= 5.0:
-                return 1
-            elif 5.0 <= wpk <= 6.0:
-                return 2
-            else:
-                return 3
+        if st.session_state.show_data:
+            st.header("Muestra de datos subidos")
+            st.write(df.head())
 
-        df['performance_metric'] = df['240s_peak_wpk'].apply(categorize_wpk)
+        # Procesar datos y hacer predicciones
+        data = df.to_dict(orient='records')
+        if data:
+            predictions = []
+            for record in data:
+                predicted_aerobic, predicted_anaerobic = predict_capacities(record)
+                # Mapear las predicciones a las categorías equivalentes
+                record['predicted_aerobic'] = ['Casual', 'Principiante', 'Experimentado', 'Élite'][predicted_aerobic]
+                record['predicted_anaerobic'] = ['Casual', 'Principiante', 'Experimentado', 'Élite'][predicted_anaerobic]
+                predictions.append(record)
+            predictions_df = pd.DataFrame(predictions)
+            st.header("Predicciones")
+            st.write(predictions_df)
 
-        # Selección de características y escalamiento
-        features = ['age', 'gender', 'activities', 'bike', '20s_peak', '60s_peak', '180s_peak', '420s_peak', '720s_peak', 'weightkg']
-        X = df[features]
-        
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
+            # Gráfico de distribución por categoría
+            st.header("Distribución por Categoría")
 
-        # Cargar el modelo y predecir
-        model = load('model.joblib')
-        predictions = model.predict(X_scaled)
-        
-        # Añadir las predicciones al DataFrame
-        df['Predicción'] = predictions
+            # Conteo por categoría
+            category_counts = predictions_df['predicted_aerobic'].value_counts()
+            fig, ax = plt.subplots()
+            sns.barplot(x=category_counts.index, y=category_counts.values, palette='viridis', ax=ax)
+            ax.set_title('Número de Ciclistas por Categoría Aeróbica')
+            ax.set_xlabel('Categoría Aeróbica')
+            ax.set_ylabel('Número de Ciclistas')
+            st.pyplot(fig)
 
-        st.header("Resultados de las Predicciones")
-        st.write(df.head())
+            # Gráfico de distribución de edad
+            st.header("Distribución de Edad")
 
-        pred_csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("Descargar predicciones", pred_csv, "predicciones.csv", "text/csv")
+            # Histograma de edad
+            fig, ax = plt.subplots()
+            sns.histplot(predictions_df['age'], bins=20, kde=True, palette='viridis', ax=ax)
+            ax.set_title('Distribución de Edad de los Ciclistas')
+            ax.set_xlabel('Edad')
+            ax.set_ylabel('Frecuencia')
+            st.pyplot(fig)
 
-        # Información de categorías
-        with st.expander("Ver información de categorías"):
-            st.write("""
-            **0**: Casual
-            **1**: Amateur
-            **2**: Experimentado
-            **3**: Profesional
-            """)
+        else:
+            st.error("El archivo CSV no contiene datos válidos.")
 
-        # Agregar un botón para ver estadísticas
-        if st.button("Ver estadísticas"):
-            st.header("Estadísticas de las Predicciones")
-            
-            # Ejemplo de gráfico de barras con Plotly
-            fig = px.histogram(df, x='Predicción', title='Distribución de Predicciones')
-            st.plotly_chart(fig)
-            
-            # Más visualizaciones o estadísticas
-            st.write("Estadísticas descriptivas:")
-            st.write(df.describe())
+    else:
+        # Volver al formulario de entrada si no hay archivo cargado
+        st.header("Ingrese sus datos")
+        user_data = user_input()
+
+        # Predicciones
+        if st.button("Predecir"):
+            predicted_aerobic, predicted_anaerobic = predict_capacities(user_data)
+            # Mapear las predicciones a las categorías equivalentes
+            category_aerobic = ['Casual', 'Principiante', 'Experimentado', 'Élite'][predicted_aerobic]
+            category_anaerobic = ['Casual', 'Principiante', 'Experimentado', 'Élite'][predicted_anaerobic]
+            st.write(f"Tu estimación aeróbica es: {category_aerobic}")
+            st.write(f"Tu estimación anaeróbica es: {category_anaerobic}")
+
 
 
