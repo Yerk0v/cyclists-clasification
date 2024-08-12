@@ -6,3 +6,4 @@ imbalanced-learn
 xgboost
 plotly
 matplotlib
+seaborn
