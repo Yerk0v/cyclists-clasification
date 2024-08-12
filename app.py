@@ -70,27 +70,55 @@ if st.session_state.clicked[1]:
             st.header("Predicciones")
             st.write(predictions_df)
 
-            # Gráfico de distribución por categoría
-            st.header("Distribución por Categoría")
-
-            # Conteo por categoría
-            category_counts = predictions_df['predicted_aerobic'].value_counts()
+            # Gráfico de distribución por categoría aeróbica
+            st.header("Distribución por Categoría Aeróbica")
+            category_aerobic_counts = predictions_df['predicted_aerobic'].value_counts()
             fig, ax = plt.subplots()
-            sns.barplot(x=category_counts.index, y=category_counts.values, palette='viridis', ax=ax)
+            sns.barplot(x=category_aerobic_counts.index, y=category_aerobic_counts.values, palette='viridis', ax=ax)
             ax.set_title('Número de Ciclistas por Categoría Aeróbica')
             ax.set_xlabel('Categoría Aeróbica')
             ax.set_ylabel('Número de Ciclistas')
+            for i, count in enumerate(category_aerobic_counts.values):
+                ax.text(i, count + 2, str(count), ha='center')
+            st.pyplot(fig)
+
+            # Gráfico de distribución por categoría anaeróbica
+            st.header("Distribución por Categoría Anaeróbica")
+            category_anaerobic_counts = predictions_df['predicted_anaerobic'].value_counts()
+            fig, ax = plt.subplots()
+            sns.barplot(x=category_anaerobic_counts.index, y=category_anaerobic_counts.values, palette='magma', ax=ax)
+            ax.set_title('Número de Ciclistas por Categoría Anaeróbica')
+            ax.set_xlabel('Categoría Anaeróbica')
+            ax.set_ylabel('Número de Ciclistas')
+            for i, count in enumerate(category_anaerobic_counts.values):
+                ax.text(i, count + 2, str(count), ha='center')
             st.pyplot(fig)
 
             # Gráfico de distribución de edad
             st.header("Distribución de Edad")
-
-            # Histograma de edad
             fig, ax = plt.subplots()
             sns.histplot(predictions_df['age'], bins=20, kde=True, palette='viridis', ax=ax)
             ax.set_title('Distribución de Edad de los Ciclistas')
             ax.set_xlabel('Edad')
             ax.set_ylabel('Frecuencia')
+            st.pyplot(fig)
+
+            # Gráfico de rendimiento en relación al average_power (boxplot) por categoría aeróbica
+            st.header("Rendimiento en Relación al Average Power por Categoría Aeróbica")
+            fig, ax = plt.subplots()
+            sns.boxplot(x='predicted_aerobic', y='average_power', data=predictions_df, palette='viridis', ax=ax)
+            ax.set_title('Distribución del Average Power por Categoría Aeróbica')
+            ax.set_xlabel('Categoría Aeróbica')
+            ax.set_ylabel('Average Power')
+            st.pyplot(fig)
+
+            # Gráfico de rendimiento en relación al average_power (boxplot) por categoría anaeróbica
+            st.header("Rendimiento en Relación al Average Power por Categoría Anaeróbica")
+            fig, ax = plt.subplots()
+            sns.boxplot(x='predicted_anaerobic', y='average_power', data=predictions_df, palette='magma', ax=ax)
+            ax.set_title('Distribución del Average Power por Categoría Anaeróbica')
+            ax.set_xlabel('Categoría Anaeróbica')
+            ax.set_ylabel('Average Power')
             st.pyplot(fig)
 
         else:
@@ -109,6 +137,3 @@ if st.session_state.clicked[1]:
             category_anaerobic = ['Casual', 'Principiante', 'Experimentado', 'Élite'][predicted_anaerobic]
             st.write(f"Tu estimación aeróbica es: {category_aerobic}")
             st.write(f"Tu estimación anaeróbica es: {category_anaerobic}")
-
-
-
