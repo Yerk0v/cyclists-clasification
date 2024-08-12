@@ -20,7 +20,7 @@ Esta aplicación utiliza el modelo XGBoost para clasificar el rendimiento de cic
 
 - Formato: CSV con codificación UTF-8
 - Separador: Coma
-- Características: `age`, `gender`, `activities`, `bike`, `20s_peak`, `60s_peak`, `180s_peak`, `420s_peak`, `720s_peak`, `weightkg`
+- Características: `age`, `gender`, `activities`, `weightkg`, `frecuencia_semanal`, `workout_time`, `total_distance`, `elevation_gain`, `average_speed`, `average_power`, `average_hr`
 
 ## Uso
 
