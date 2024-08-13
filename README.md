@@ -32,6 +32,14 @@ Esta aplicación utiliza el modelo XGBoost para clasificar el rendimiento de cic
 
 Una vez que se sube el archivo CSV, el modelo procesará los datos y clasificará a los ciclistas en una de las cuatro categorías de rendimiento. Puedes descargar los resultados y ver las estadísticas para un análisis más profundo.
 
+## Página en funcionamiento
+
+Aqui ejemplos de como se ve la página a la hora de desplegarla en la nube con Streamlit.
+
+![Main Page](web-validation-1.png)
+![Aplicando predicción al csv](web-validation-2.png)
+
+
 ## Contribución y Desarrollo
 
 Este proyecto está abierto a contribuciones. Si tienes alguna mejora o idea, no dudes en hacer un pull request o abrir un issue.
