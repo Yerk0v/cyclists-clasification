@@ -38,6 +38,8 @@ Aqui ejemplos de como se ve la página a la hora de desplegarla en la nube con S
 
 ![Main Page](web-validation-1.png)
 ![Aplicando predicción al csv](web-validation-2.png)
+![Tabla de resultados predicción](web-validation-3.png)
+![Gráficos de rendimiento](web-validation-4.png)
 
 
 ## Contribución y Desarrollo
